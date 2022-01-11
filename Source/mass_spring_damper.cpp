@@ -30,10 +30,11 @@ mass_spring_damper::mass_spring_damper (double freq, double fs) : fs (fs), freq 
 //	FB = 1000;
 	FB = 100;
 //	FB = 5;
-	vB = 0.2;
-    a = 100; // friction law free parameter (1/m^2) (a) % decreasing sig increases the stick time
-    A = sqrt(2 * a) * exp(0.5);
+	vB = 0.1;
+    a = 300.0; // friction law free parameter (1/m^2) (a) % decreasing sig increases the stick time
+//    A = sqrt(2 * a) * exp(0.5);
     tol = 1e-12;
+    stickFact = 1;
     
     // param init:
     u_n = 0;
@@ -87,11 +88,13 @@ void mass_spring_damper::newtonRaphson()
     int count = 1;
     double v_rel_last = 0;
 	double b = w0 * w0 * u_n - 2 / (T * T) * (u_n - u_nm1) + (2 / T + 2 * sig0) * vB;
+//    Logger::getCurrentLogger()->outputDebugString("vB: (" + String(vB) + ")");
+
 //    double b_new = 0;
     while ((eps > tol) && (count < 99))
     {
-        numerator =  (FB/mass) * A * v_rel_last * exp(-a * v_rel_last * v_rel_last) + ((2/T) + 2*sig0)*v_rel_last + b; 
-        denominator = (FB/ mass) * A * exp(-a * v_rel_last * v_rel_last) * (1 - 2 * a * v_rel_last * v_rel_last) + ((2/T) + 2*sig0);
+        numerator =  (FB/mass) * sqrt(2 * a) * exp(0.5) * v_rel_last * exp(-a * v_rel_last * v_rel_last) + ((2/T) + 2*sig0)*v_rel_last + b;
+        denominator = (FB/ mass) * sqrt(2 * a) * exp(0.5) * exp(-a * v_rel_last * v_rel_last) * (1 - 2 * a * v_rel_last * v_rel_last) + ((2/T) + 2*sig0);
 		
         double v_rel_new = v_rel_last - numerator/denominator;
 
@@ -101,7 +104,7 @@ void mass_spring_damper::newtonRaphson()
     }
     if (isBowing == true)
     {
-        F_fr = FB * A * v_rel_last * exp(-a * v_rel_last * v_rel_last);
+        F_fr = stickFact * FB * sqrt(2 * a) * exp(0.5) * v_rel_last * exp(-a * v_rel_last * v_rel_last);
     }else
     {
         F_fr = 0;

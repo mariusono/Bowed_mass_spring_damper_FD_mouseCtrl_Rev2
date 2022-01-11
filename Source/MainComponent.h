@@ -96,6 +96,7 @@ private:
 	double gDampingVal;
     double gFrParam;
     double gVolume;
+    double gStickFact;
 
     // For graphics
     // Opacity

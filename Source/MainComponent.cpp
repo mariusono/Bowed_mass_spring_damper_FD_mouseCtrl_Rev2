@@ -113,11 +113,13 @@ void MainComponent::sliderValueChanged(Slider* slider)
         gFrParam = frParamSlider.getValue();
 ////        gFrParam = exponentialMapping(1500.0, 1.0, 1500.0, 1.0, 4.0, gFrParam);
 //        gFrParam = exponentialMapping(15000.0, 1.0, 15000.0, 1.0, 8.0, gFrParam);
-        
-        gFrParam = linearMapping(15000.0, 1.0, 1, 15000.0, gFrParam);
+        gStickFact = linearMapping(15000.0, 1.0, 2.0, 0.0, gFrParam);
+        gFrParam = linearMapping(15000.0, 1.0, 1.0, 15000.0, gFrParam);
         gFrParam = exponentialMapping(1.0, 15000.0, 1.0, 15000.0, -8.0, gFrParam);
+//        gStickFact = linearMapping(1.0, 15000.0, 2.0, 0.0, gFrParam);
 
-        Logger::getCurrentLogger()->outputDebugString("gFrParam: (" + String(gFrParam) + ")");
+//        Logger::getCurrentLogger()->outputDebugString("gFrParam: (" + String(gFrParam) + ")");
+        Logger::getCurrentLogger()->outputDebugString("gStickFact: (" + String(gStickFact) + ")");
     }
     else if (slider == &volumeSlider)
     {
@@ -222,6 +224,7 @@ void MainComponent::getNextAudioBlock(const juce::AudioSourceChannelInfo& buffer
 	{
         mass_spring_dampers[iMass]->setDamping(gDampingVal);
         mass_spring_dampers[iMass]->setFrParam(gFrParam);
+        mass_spring_dampers[iMass]->setStickFact(gStickFact);
 	}
 
     // update volume at every buffersize to avoid clicks.. (maybe)
@@ -247,7 +250,13 @@ void MainComponent::getNextAudioBlock(const juce::AudioSourceChannelInfo& buffer
 //                        double exponentialMapping(float rangeIn_top, float rangeIn_bottom, float rangeOut_top, float rangeOut_bottom, float fac, float value)
                         
                         float gainVal = exponentialMapping((float) numMasses - 1.0, 0.0, 550.0, 120.0, -1.5, (float) j); // this is a reasonable mapping..
+//                        gainVal = 500;
                         float massSound = mass_spring_dampers[j]->process() * gainVal; // this is some global amplitude here
+                        
+//                        if (i % bufferToFill.buffer->getNumSamples() < 1 && mass_spring_dampers[j]->isActive())
+//                        {
+//                            Logger::getCurrentLogger()->outputDebugString("rawOut: (" + String(mass_spring_dampers[j]->process()) + ")");
+//                        }
                         
 						gOutputMasses[j] = massSound;
 						output = output + massSound;

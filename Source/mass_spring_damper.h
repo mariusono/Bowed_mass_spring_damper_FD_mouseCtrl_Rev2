@@ -34,11 +34,13 @@ public:
 	void setFb(double val) { FB = val; }
     void setDamping(double val) { c_damp = val; }
     void setFrParam(double val) { a = val; }
-    
+    void setStickFact(double val) { stickFact = val; }
+
 	double getDamping() { return c_damp; }
 	double getVb() { return vB; }
     double getFb() { return FB; }
     double getFrParam() { return a; }
+    double getStickFact() { return stickFact;  }
 
     bool isActive() { return active; };
     void activate() { active = true; };
@@ -52,6 +54,8 @@ private:
     double fs, freq, mass, k_stiff, c_damp, sig0, vB, A, tol, a, T, w0;
 	double FB;
 
+    double stickFact;
+    
     // process params
 	double F_fr;
 	
